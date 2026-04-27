@@ -11,6 +11,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/psci/psci.h>
+#include <lib/mmio.h>
 #include <lib/semihosting.h>
 #include <plat/common/plat_hold_pen.h>
 #include <plat/common/platform.h>
@@ -129,6 +130,13 @@ static int qemu_pwr_domain_on(u_register_t mpidr)
 
 	plat_hold_pen_signal((struct hold_slot *)PLAT_QEMU_HOLD_BASE,
 			pos, secure_entrypoint);
+	/*
+	 * QEMU's generic PSCI model wakes powered-off secondary vCPUs for us,
+	 * but TF-A's hold pen alone cannot do that when SPL handed off to BL31.
+	 * Kick the JXL CPU power controller so the target CPU re-enters TF-A's
+	 * EL3 warm entry and then lands in the signalled hold-pen slot.
+	 */
+	mmio_write_64(JXL_CPU_PWRCTL_BASE, mpidr);
 
 	return PSCI_E_SUCCESS;
 }

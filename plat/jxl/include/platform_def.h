@@ -39,14 +39,14 @@
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
 /*
- * JXL only needs BL31 today. Reserve the top 1 MiB of DRAM for secure
- * firmware runtime state so EL3 services survive after handing off to BL33.
+ * Keep the top 16 MiB of DRAM out of the non-secure view so BL31 runtime
+ * text/stack state stays intact after U-Boot relocates and later boots BL33.
  */
 #define NS_DRAM0_BASE			ULL(0x40000000)
-#define NS_DRAM0_SIZE			ULL(0x80000000)
+#define NS_DRAM0_SIZE			ULL(0x7f000000)
 
-#define SEC_SRAM_BASE			0xbff00000
-#define SEC_SRAM_SIZE			0x00100000
+#define SEC_SRAM_BASE			0xbf000000
+#define SEC_SRAM_SIZE			0x01000000
 #define SEC_DRAM_BASE			SEC_SRAM_BASE
 #define SEC_DRAM_SIZE			0
 
@@ -83,6 +83,8 @@
 
 #define UART0_BASE			0x09000000
 #define UART0_CLK_IN_HZ			24000000
+
+#define JXL_CPU_PWRCTL_BASE		0x0a010000
 
 #define PLAT_QEMU_BOOT_UART_BASE	UART0_BASE
 #define PLAT_QEMU_BOOT_UART_CLK_IN_HZ	UART0_CLK_IN_HZ
